@@ -11,7 +11,7 @@ class Tweet extends Model
 
   protected $fillable = ['tweet'];
 
-//一対多 連携の設定 自分が多
+  //一対多 連携の設定 自分が多
   public function user()
   {
     return $this->belongsTo(User::class);
@@ -20,5 +20,10 @@ class Tweet extends Model
   public function liked()
   {
     return $this->belongsToMany(User::class)->withTimestamps();
+  }
+
+  public function comments()
+  {
+    return $this->hasMany(Comment::class)->orderBy('created_at', 'desc');
   }
 }
