@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Models\Tweet;
-use Illuminate\Support\Facades\Auth;//赤線をなくすために追加した。9/16
+use Illuminate\Support\Facades\Auth;//赤線をなくすために追加した。(9/16)
 
 class CommentController extends Controller
 {
@@ -36,7 +36,7 @@ class CommentController extends Controller
 
         $tweet->comments()->create([
     'comment' => $request->comment,
-    'user_id' => Auth::id(),//赤線をなくすために修正した。9/16
+    'user_id' => Auth::id(),//赤線をなくすために修正した。(9/16)
         ]);
 
         return redirect()->route('tweets.show', $tweet);
