@@ -10,7 +10,7 @@ class TweetController extends Controller
     /**
      * Display a listing of the resource.
      */
-     public function index()
+    public function index()
     {
         // 🔽 liked のデータも合わせて取得するよう修正
         $tweets = Tweet::with(['user', 'liked'])->latest()->get();
@@ -80,5 +80,30 @@ class TweetController extends Controller
         $tweet->delete();
 
         return redirect()->route('tweets.index');
+    }
+
+    /**
+     * Search for tweets containing the keyword.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function search(Request $request)
+    {
+
+        $query = Tweet::query();
+
+        // キーワードが指定されている場合のみ検索を実行
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where('tweet', 'like', '%' . $keyword . '%');
+        }
+
+        // ページネーションを追加（1ページに10件表示）
+        $tweets = $query
+            ->latest()
+            ->paginate(10);
+
+        return view('tweets.search', compact('tweets'));
     }
 }
