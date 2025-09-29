@@ -6,6 +6,7 @@ use App\Http\Controllers\TweetController;
 use App\Http\Controllers\TweetLikeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\BlockController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tweets.comments', CommentController::class);
     Route::post('/follow/{user}', [FollowController::class, 'store'])->name('follow.store');
     Route::delete('/follow/{user}', [FollowController::class, 'destroy'])->name('follow.destroy');
+    Route::get('/blocks', [BlockController::class, 'index'])->name('blocks.index');
 });
 
 require __DIR__ . '/auth.php';
