@@ -14,29 +14,36 @@ use App\Models\User;
 class ProfileController extends Controller
 {
     /**
-   * Display the specified resource.
-   */
-  public function show(User $user)
-  {
-    if (auth()->user()->is($user)) {
-      $tweets = Tweet::query()
-        ->where('user_id', $user->id)  // 自分のツイート
-        ->orWhereIn('user_id', $user->follows->pluck('id')) // フォローしているユーザーのツイート
-        ->latest()
-        ->paginate(10);
-    } else {
-      // 他のユーザーの場合、そのユーザーのツイートのみを取得
-      $tweets = $user
-        ->tweets()
-        ->latest()
-        ->paginate(10);
+     * Display the specified resource.
+     */
+    public function show(User $user)
+    {
+        $authUser = auth()->user();
+
+        // 🔹 相手が自分をブロックしている場合
+        if ($user->blocks->contains($authUser->id)) {
+            return view('profile.show', [
+                'user' => $user,
+                'tweets' => collect(), // 空のコレクション
+                'blockedMessage' => true,
+            ]);
+        }
+
+        if ($authUser->is($user)) {
+            $tweets = Tweet::query()
+                ->where('user_id', $user->id)
+                ->orWhereIn('user_id', $user->follows->pluck('id'))
+                ->latest()
+                ->paginate(10);
+        } else {
+            $tweets = $user->tweets()->latest()->paginate(10);
+        }
+
+        $user->load(['follows', 'followers']);
+
+        return view('profile.show', compact('user', 'tweets'));
     }
 
-    // ユーザーのフォロワーとフォローしているユーザーを取得
-    $user->load(['follows', 'followers']);
-
-    return view('profile.show', compact('user', 'tweets'));
-  }
 
     /**
      * Display the user's profile form.

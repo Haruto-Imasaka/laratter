@@ -69,4 +69,16 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'follows', 'follower_id', 'follow_id');
     }
+
+    // 自分がブロックしているユーザ
+    public function blocks()
+    {
+        return $this->belongsToMany(User::class, 'blocks', 'blocker_id', 'blocked_id');
+    }
+
+    // 自分をブロックしているユーザ
+    public function blockedBy()
+    {
+        return $this->belongsToMany(User::class, 'blocks', 'blocked_id', 'blocker_id');
+    }
 }
