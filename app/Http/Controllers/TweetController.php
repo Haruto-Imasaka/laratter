@@ -12,11 +12,20 @@ class TweetController extends Controller
      */
     public function index()
     {
-        // 🔽 liked のデータも合わせて取得するよう修正
-        $tweets = Tweet::with(['user', 'liked'])->latest()->get();
-        // dd($tweets);
+        $authUser = auth()->user();
+
+        $blockedIds = $authUser->blocks->pluck('id');       // 自分がブロックしたユーザー
+        $blockedByIds = $authUser->blockedBy->pluck('id');  // 自分をブロックしているユーザー
+
+        $tweets = Tweet::with(['user', 'liked'])
+            ->whereNotIn('user_id', $blockedIds)     // 自分がブロックした人のツイート非表示
+            ->whereNotIn('user_id', $blockedByIds)   // 自分をブロックしている人のツイート非表示
+            ->latest()
+            ->get();
+
         return view('tweets.index', compact('tweets'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -46,9 +55,20 @@ class TweetController extends Controller
      */
     public function show(Tweet $tweet)
     {
+        $authUser = auth()->user();
+        $owner = $tweet->user;
+
+        if ($owner->blocks->contains($authUser->id)) {
+            return view('tweets.show', [
+                'tweet' => null,
+                'blockedMessage' => "＠{$owner->name}さんはあなたをブロックしました|＠{$owner->name}さんにブロックされているため、＠{$owner->name}さんのツイートを表示できません。",
+            ]);
+        }
+
         $tweet->load('comments');
         return view('tweets.show', compact('tweet'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

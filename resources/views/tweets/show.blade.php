@@ -9,6 +9,16 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-900 dark:text-gray-100">
+          {{-- ブロックされている場合のツイート表示 --}}
+          @if ($blockedMessage ?? false)
+          <div class="text-red-600 font-bold">
+            {{ explode('|', $blockedMessage)[0] }}
+          </div>
+          <div class="text-gray-600">
+            {{ explode('|', $blockedMessage)[1] }}
+          </div>
+          @else
+          {{-- 通常のツイート表示 --}}
           <a href="{{ route('tweets.index') }}" class="text-blue-500 hover:text-blue-700 mr-2">一覧に戻る</a>
           <p class="text-gray-800 dark:text-gray-300 text-lg">{{ $tweet->tweet }}</p>
           <p class="text-gray-600 dark:text-gray-400 text-sm">投稿者: {{ $tweet->user->name }}</p>
@@ -26,7 +36,7 @@
             </form>
           </div>
           @endif
-                    <div class="flex mt-4">
+          <div class="flex mt-4">
             @if ($tweet->liked->contains(auth()->id()))
             <form action="{{ route('tweets.dislike', $tweet) }}" method="POST">
               @csrf
@@ -54,6 +64,7 @@
             </a>
             @endforeach
           </div>
+          @endif
         </div>
       </div>
     </div>
